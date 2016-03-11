@@ -1,21 +1,21 @@
 <?php class Sell_Media_Featured_Widget extends WP_Widget
 {
-    function Sell_Media_Featured_Widget(){
+	function Sell_Media_Featured_Widget(){
 		$widget_ops = array('description' => 'Displays featured items');
 		$control_ops = array('width' => 200, 'height' => 200);
-		parent::WP_Widget(false,$name='Sell Media Featured Items',$widget_ops,$control_ops);
-    }
+		parent::__construct( false, $name='Sell Media Featured Items', $widget_ops, $control_ops );
+	}
 
 	/* Displays the Widget in the front-end */
-    function widget($args, $instance){
+	function widget($args, $instance){
 		extract($args);
 		$title = apply_filters('widget_title', empty($instance['title']) ? '' : $instance['title']);
 		$categoryNumber = empty($instance['categoryNumber']) ? '' : $instance['categoryNumber'];
-	    extract($args);
-        echo $before_widget;
+		extract($args);
+		echo $before_widget;
 
-    	if ( $title )
-    		echo $before_title . $title . $after_title;
+		if ( $title )
+			echo $before_title . $title . $after_title;
 
 		global $post;
 
@@ -32,7 +32,7 @@
 			$args['post_type'] = 'sell_media_item';
 		} ?>
 
-		<div class="sell-media-featured-widget">
+		<div class="sell-media-featured-widget sell-media">
 
 			<?php
 			$type_posts = new WP_Query ( $args );
@@ -43,13 +43,13 @@
 				global $post;
 			?>
 
-				<div class="sell-media-widget-item-warp third">
+				<div class="sell-media-widget-item-wrap sell-media-grid-item">
 					<div class="sell-media-widget-thumb-wrap">
 						<a href="<?php echo get_permalink(); ?>">
 							<?php sell_media_item_icon( $post->ID, apply_filters( 'sell_media_thumbnail', 'thumbnail' ) ); ?>
 						</a>
 					</div>
-				</div> <!--  .sell-media-widget-item-warp  -->
+				</div> <!--  .sell-media-widget-item-wrap  -->
 
 				<?php endwhile; wp_reset_postdata(); ?>
 
@@ -70,7 +70,7 @@
 	}
 
   /*Creates the form for the widget in the back-end. */
-    function form($instance){
+	function form($instance){
 		//Defaults
 		$instance = wp_parse_args( (array) $instance, array('title'=>'Featured Items', 'categoryNumber'=>'') );
 		$title = htmlspecialchars($instance['title']);
@@ -86,7 +86,7 @@
 
 		$i = 0;
 		foreach( $productTerms as $collection ){
-			$password = sell_media_get_term_meta( $collection->term_id, 'collection_password', true );
+			$password = get_term_meta( $collection->term_id, 'collection_password', true );
 			if ( $password ) unset( $productTerms[ $i ] );
 			$i++;
 		} ?>

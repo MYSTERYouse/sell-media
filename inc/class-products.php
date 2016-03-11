@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Products Class
+ *
+ * @package Sell Media
+ * @author Thad Allender <support@graphpaperpress.com>
+ */
+
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -19,7 +26,7 @@ Class SellMediaProducts {
     public function verify_the_price( $product_id=null, $price_id=null ){
 
         // price group price
-        $price_group_price = sell_media_get_term_meta( $price_id, 'price', true );
+        $price_group_price = get_term_meta( $price_id, 'price', true );
         $custom_price = get_post_meta( $product_id, 'sell_media_price', true );
         // check that the price_id exists and that the price meta is set
         if ( ! empty( $price_group_price ) ) {
@@ -42,11 +49,11 @@ Class SellMediaProducts {
      *
      * @return $prices (array)
      */
-    public function get_prices( $post_id=null, $taxonomy='price-group' ){
+    public function get_prices( $post_id=null, $attachment_id=null, $taxonomy='price-group' ){
         $i = 0;
 
         if ( $this->settings->hide_original_price !== 'yes' ){
-            $original_size = Sell_Media()->images->get_original_image_size( $post_id, false );
+            $original_size = Sell_Media()->images->get_original_image_size( $attachment_id );
             $prices[$i]['id'] = 'original';
             $prices[$i]['name'] = __( 'Original', 'sell_media' );
             $prices[$i]['description'] = __( 'The original high resolution source file', 'sell_media' );
@@ -55,16 +62,17 @@ Class SellMediaProducts {
             $prices[$i]['height'] = $original_size['original']['height'];
         }
 
-        if ( $this->mimetype_is_image( get_post_meta( $post_id, '_sell_media_attachment_id', true ) ) ){
+        if ( $this->has_image_attachments( $post_id ) ) {
+
             // check assigned price group. We're assuming there is just one.
             $term_parent = wp_get_post_terms( $post_id, $taxonomy );
 
             // if no assigned price group, get default from settings
             if ( empty( $term_parent ) || is_wp_error( $term_parent ) ){
                 $default = $this->settings->default_price_group;
-                $terms = get_terms( $taxonomy, array( 'hide_empty' => false, 'parent' => $default ) );
+                $terms = get_terms( $taxonomy, array( 'hide_empty' => false, 'parent' => $default, 'orderby' => 'id' ) );
             } else {
-                $terms = get_terms( $taxonomy, array( 'hide_empty' => false, 'parent' => $term_parent[0]->term_id ) );
+                $terms = get_terms( $taxonomy, array( 'hide_empty' => false, 'parent' => $term_parent[0]->term_id, 'orderby' => 'id' ) );
             }
 
             // loop over child terms
@@ -74,9 +82,9 @@ Class SellMediaProducts {
                     $prices[$i]['id'] = $term->term_id;
                     $prices[$i]['name'] = $term->name;
                     $prices[$i]['description'] = $term->description;
-                    $prices[$i]['price'] = sell_media_get_term_meta( $term->term_id, 'price', true );
-                    $prices[$i]['width'] = sell_media_get_term_meta( $term->term_id, 'width', true );
-                    $prices[$i]['height'] = sell_media_get_term_meta( $term->term_id, 'height', true );
+                    $prices[$i]['price'] = get_term_meta( $term->term_id, 'price', true );
+                    $prices[$i]['width'] = get_term_meta( $term->term_id, 'width', true );
+                    $prices[$i]['height'] = get_term_meta( $term->term_id, 'height', true );
                 }
             }
         }
@@ -93,7 +101,7 @@ Class SellMediaProducts {
      *
      * @return price on success false on failure
      */
-    public function get_price( $product_id=null, $price_id=null, $formatted=false, $taxonomy='price-group' ){
+    public function get_price( $product_id=null, $attachment_id=null, $price_id=null, $formatted=false, $taxonomy='price-group' ){
 
         $final_price = false;
 
@@ -105,8 +113,7 @@ Class SellMediaProducts {
         }
 
         // Use price group price
-        elseif ( ! empty( $price_id ) && $this->mimetype_is_image( get_post_meta( $product_id, '_sell_media_attachment_id', true ) )
-            && $price_id != 'original' ){
+        elseif ( ! empty( $price_id ) &&  wp_attachment_is_image( $attachment_id ) && $price_id != 'original' ) {
             foreach( $this->get_prices( $product_id, $taxonomy ) as $price ){
                 if ( $price_id == $price['id'] ){
                     $final_price = $price['price'];
@@ -125,6 +132,20 @@ Class SellMediaProducts {
         return $final_price;
     }
 
+    /**
+     * Get the original price of an item
+     *
+     * @param $post_id (int) The post id
+     * @return string (int)
+     */
+    public function get_original_price( $post_id=null ){
+
+        $price = sprintf( '%0.2f', ( float ) get_post_meta( $post_id, 'sell_media_price', true ) );
+        if ( $price )
+            return $price;
+    }
+
+
 
     /**
      * Retrieves the lowest price available of an item from the price groups
@@ -136,7 +157,10 @@ Class SellMediaProducts {
         $prices = $this->get_prices( $post_id );
         if ( $prices ) foreach ( $prices as $price ){
             $lowest_price[] = $price['price'];
+        } else {
+            $lowest_price = ( $this->get_original_price( $post_id ) ) ? $this->get_original_price( $post_id ) : $this->settings->default_price;
         }
+
         if ( is_array( $lowest_price ) ) {
             return min( $lowest_price );
         } else {
@@ -150,36 +174,32 @@ Class SellMediaProducts {
      * @param $post_id (int) product id of post type "sell_media_item"
      * @return (bool) true/false
      */
-    
+
     public function has_price_group( $post_id=null ){
 
-        $term = null; // check all
+        $taxonomies = array( 'price-group', 'reprints-price-group' );
 
-        if ( has_term( $term, 'price-group', $post_id ) ) {
-            return true;
-        } elseif ( has_term( $term, 'reprint-price-group', $post_id ) ) {
-            return true;
-        } else {
-            return false;
+        foreach ( $taxonomies as $taxonomy ) {
+            if ( has_term( '', $taxonomy, $post_id ) ) {
+                return true;
+            }
         }
-
     }
 
 
     /**
-     * Checks if the attachment ID is an image mime type
+     * Checks if the post has image attachments
      *
      * @param $attachment_id ID of the attachment
-     * @param $mimetype an array of mimetypes
      * @return boolean true/false
      * @since 1.6.9
      */
-    public function mimetype_is_image( $post_id=null, $mimetypes=array( 'image/jpeg', 'image/gif', 'image/png', 'image/bmp', 'image/tiff', 'image/icon' ) ){
-        $attachment_mimetype = get_post_mime_type( $post_id );
-        if ( in_array( $attachment_mimetype, $mimetypes ) ) {
-            return true;
-        } else {
-            return false;
+    public function has_image_attachments( $post_id=null ){
+        $attachment_ids = sell_media_get_attachments( $post_id );
+        if ( $attachment_ids ) foreach ( $attachment_ids as $attachment_id ) {
+            if ( wp_attachment_is_image( $attachment_id ) ) {
+                return true;
+            }
         }
     }
 
@@ -188,15 +208,50 @@ Class SellMediaProducts {
      * Get the protected image from the server
      *
      * @param (int) $post_id The post id to a sell media item
+     * @param (int) $attachment_id The attachment id
      * @return Returns the path to a protected image
      */
-    public function protected_file( $post_id=null ){
-        $attached_file = get_post_meta( $post_id, '_sell_media_attached_file', true );
-        $attached_path_file = sell_media_get_upload_dir() . '/' . $attached_file;
-        return ( file_exists( $attached_file ) ) ? $attached_file : false;
+    public function get_protected_file( $post_id=null, $attachment_id=null ){
+
+        /**
+         * When we upload items into Sell Media, we move the original file
+         * into the protected wp-content/uploads/sell_media/* directory
+         * and copy all of the intermediate image sizes into the regular
+         * wp-content/uploads/* directory. Using get_attached_file()
+         * will not return the original, high resolution file. It will return
+         * only the largest publicly accessible (derived from Settings -> Media).
+         * So, we now need to build the path protected sell_media directory.
+         * Example (public): /var/www/wp.local/wp-content/uploads/2015/04/mansion.jpeg
+         * Example (protected): /var/www/wp.local/wp-content/uploads/sell_media/2015/04/mansion.jpeg
+         */
+
+        // Full system file path to the public low res. version.
+        $unprotected_file   = get_attached_file( $attachment_id );
+        // Full system file path to the protected high res. version.
+        $wp_upload_dir      = wp_upload_dir();
+        $protected_dir      = $wp_upload_dir['basedir'] . '/sell_media';
+        $protected_file     = str_replace( $wp_upload_dir['basedir'], $protected_dir, $unprotected_file );
+
+        // Check if this item is a package and change the file location
+        if ( $this->is_package( $post_id ) ) {
+            $file = $this->get_package_file( $post_id );
+        } elseif ( file_exists( $protected_file ) ) {
+            $file = $protected_file;
+        } else {
+            $file = $unprotected_file;
+        }
+
+        return apply_filters( 'sell_media_get_original_protected_file', $file );
     }
 
+    /**
+     * Return full path to package file
+     */
+    public function get_package_file( $post_id ) {
 
+        $file = get_post_meta( $post_id, '_sell_media_attached_file', true );
+        return sell_media_get_packages_upload_dir() . '/' . $file;
+    }
 
     /**
      * Determine the markup amount.
@@ -215,11 +270,23 @@ Class SellMediaProducts {
             $markup_amount = 0;
         } else {
             $price = $this->verify_the_price( $post_id, $price_id );
-            $markup_percent = str_replace( "%", "", sell_media_get_term_meta( $license_obj->term_id, 'markup', true ) );
+            $markup_percent = str_replace( "%", "", get_term_meta( $license_obj->term_id, 'markup', true ) );
             $markup_amount = ( $markup_percent / 100 ) * $price;
         }
 
         return $markup_amount;
+    }
+
+    /**
+     * Determine if the item is a package
+     *
+     * @param $post_id (int) Post ID
+     * @return true/false (boolean)
+     */
+    public function is_package( $post_id=null ){
+
+        if ( get_post_meta( $post_id, '_sell_media_is_package', true ) )
+            return true;
     }
 
 }

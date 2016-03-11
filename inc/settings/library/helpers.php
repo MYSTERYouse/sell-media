@@ -5,22 +5,22 @@
  */
 function sell_media_plugin_get_taxonomy_list( $taxonomy = 'category', $firstblank = false ) {
 
-	$args = array(
-		'hide_empty' => 0
-	);
+    $args = array(
+        'hide_empty' => 0
+    );
 
-	$terms_obj = get_terms( $taxonomy, $args );
-	$terms = array();
-	if( $firstblank ) {
-		$terms['']['name'] = '';
-		$terms['']['title'] = __( '-- Choose One --', 'sell_media' );
-	}
-	foreach ( $terms_obj as $tt ) {
-		$terms[ $tt->slug ]['name'] = $tt->slug;
-		$terms[ $tt->slug ]['title'] = $tt->name;
-	}
+    $terms_obj = get_terms( $taxonomy, $args );
+    $terms = array();
+    if( $firstblank ) {
+        $terms['']['name'] = '';
+        $terms['']['title'] = __( '-- Choose One --', 'sell_media' );
+    }
+    foreach ( $terms_obj as $tt ) {
+        $terms[ $tt->slug ]['name'] = $tt->slug;
+        $terms[ $tt->slug ]['title'] = $tt->name;
+    }
 
-	return $terms;
+    return $terms;
 }
 
 
@@ -29,17 +29,17 @@ function sell_media_plugin_get_taxonomy_list( $taxonomy = 'category', $firstblan
  */
 function sell_media_plugin_get_current_tab() {
 
-	global $sell_media_plugin_tabs;
+    global $sell_media_plugin_tabs;
 
-	$first_tab = $sell_media_plugin_tabs[0]['name'];
+    $first_tab = $sell_media_plugin_tabs[0]['name'];
 
     if ( isset( $_GET['tab'] ) ) {
         $current = esc_attr( $_GET['tab'] );
     } else {
-    	$current = $first_tab;
+        $current = $first_tab;
     }
 
-	return $current;
+    return $current;
 }
 
 
@@ -48,49 +48,49 @@ function sell_media_plugin_get_current_tab() {
  */
 function sell_media_plugin_get_current_tab_title( $tabval ) {
 
-	global $sell_media_plugin_tabs;
+    global $sell_media_plugin_tabs;
 
-	$current = $sell_media_plugin_tabs[ $tabval ]['title'];
+    $current = $sell_media_plugin_tabs[ $tabval ]['title'];
 
-	return $current;
+    return $current;
 }
 
 
 /**
  * Define sell_media Admin Page Tab Markup
  *
- * @uses	sell_media_plugin_get_current_tab()	defined in \functions\options.php
- * @uses	sell_media_get_settings_page_tabs()	defined in \functions\options.php
+ * @uses    sell_media_plugin_get_current_tab() defined in \functions\options.php
+ * @uses    sell_media_get_settings_page_tabs() defined in \functions\options.php
  *
- * @link	http://www.onedesigns.com/tutorials/separate-multiple-theme-options-pages-using-tabs	Daniel Tara
+ * @link    http://www.onedesigns.com/tutorials/separate-multiple-theme-options-pages-using-tabs    Daniel Tara
  */
 function sell_media_plugin_get_page_tab_markup() {
 
-	global $sell_media_plugin_tabs;
+    global $sell_media_plugin_tabs;
 
-	$page = 'sell_media_plugin_options';
+    $page = 'sell_media_plugin_options';
 
-	if ( isset( $_GET['page'] ) && 'sell-media-reference' == $_GET['page'] ) {
-		$page = 'sell-media-reference';
-	} else {
-		// do nothing
-	}
+    if ( isset( $_GET['page'] ) && 'sell-media-reference' == $_GET['page'] ) {
+        $page = 'sell-media-reference';
+    } else {
+        // do nothing
+    }
 
     $current = sell_media_plugin_get_current_tab();
 
-	if ( 'sell_media_plugin_options' == $page ) {
+    if ( 'sell_media_plugin_options' == $page ) {
         $tabs = $sell_media_plugin_tabs;
-	} else if ( 'sell-media-reference' == $page ) {
+    } else if ( 'sell-media-reference' == $page ) {
         $tabs = sell_media_get_reference_page_tabs();
-	}
+    }
 
     $links = array();
     $i = 0;
     foreach( $tabs as $tab ) {
-		if( isset( $tab['name'] ) )
-			$tabname = $tab['name'];
-		if( isset( $tab['title'] ) )
-			$tabtitle = $tab['title'];
+        if( isset( $tab['name'] ) )
+            $tabname = $tab['name'];
+        if( isset( $tab['title'] ) )
+            $tabtitle = $tab['title'];
         if ( $tabname == $current ) {
             $links[] = "<a class='nav-tab nav-tab-active' href='?post_type=sell_media_item&page=$page&tab=$tabname&i=$i'>$tabtitle</a>";
         } else {
@@ -98,8 +98,6 @@ function sell_media_plugin_get_page_tab_markup() {
         }
         $i++;
     }
-    sell_media_plugin_utility_links();
-    echo '<div id="icon-themes" class="icon32"><br /></div>';
     echo '<h2 class="nav-tab-wrapper">';
     foreach ( $links as $link )
         echo $link;
@@ -132,103 +130,128 @@ function sell_media_currencies(){
     $currencies = array(
     "USD" => array(
         'name' => 'USD',
-        'title' => __('US Dollars (&#36;)','sell_media')
+        'title' => __('US Dollars (&#36;)','sell_media'),
+        'symbol' => "&#36;"
         ),
     "EUR" => array(
         'name' => 'EUR',
-        'title' => __('Euros (&euro;)','sell_media')
+        'title' => __('Euros (&euro;)','sell_media'),
+        'symbol' => "&euro;"
         ),
     "GBP" => array(
         'name' => 'GBP',
-        'title' => __('Pounds Sterling (&pound;)','sell_media')
+        'title' => __('Pounds Sterling (&pound;)','sell_media'),
+        'symbol' => "&pound;"
         ),
     "AUD" => array(
         'name' => 'AUD',
-        'title' => __('Australian Dollars (&#36;)','sell_media')
+        'title' => __('Australian Dollars (&#36;)','sell_media'),
+        'symbol' => "&#36;"
         ),
     "BRL" => array(
         'name' => 'BRL',
-        'title' => __('Brazilian Real (R&#36;)','sell_media')
+        'title' => __('Brazilian Real (R&#36;)','sell_media'),
+        'symbol' => "R&#36;"
         ),
     "CAD" => array(
         'name' => 'CAD',
-        'title' => __('Canadian Dollars (&#36;)','sell_media')
+        'title' => __('Canadian Dollars (&#36;)','sell_media'),
+        'symbol' => "&#36;"
         ),
     "CZK" => array(
         'name' => 'CZK',
-        'title' => __('Czech Koruna (&#75;&#269;)','sell_media')
+        'title' => __('Czech Koruna (&#75;&#269;)','sell_media'),
+        'symbol' => "&#75;&#269;"
         ),
     "DKK" => array(
         'name' => 'DKK',
-        'title' => __('Danish Krone','sell_media')
+        'title' => __('Danish Krone','sell_media'),
+        'symbol' => "DKK"
         ),
     "HKD" => array(
         'name' => 'HKD',
-        'title' => __('Hong Kong Dollar (&#36;)','sell_media')
+        'title' => __('Hong Kong Dollar (&#36;)','sell_media'),
+        'symbol' => "&#36;"
         ),
     "HUF" => array(
         'name' => 'HUF',
-        'title' => __('Hungarian Forint','sell_media')
+        'title' => __('Hungarian Forint','sell_media'),
+        'symbol' => "HUF"
         ),
     "ILS" => array(
         'name' => 'ILS',
-        'title' => __('Israeli Shekel','sell_media')
+        'title' => __('Israeli Shekel','sell_media'),
+        'symbol' => "ILS"
         ),
     "JPY" => array(
         'name' => 'JPY',
-        'title' => __('Japanese Yen (&yen;)','sell_media')
+        'title' => __('Japanese Yen (&yen;)','sell_media'),
+        'symbol' => "&yen;"
         ),
     "MYR" => array(
         'name' => 'MYR',
-        'title' => __('Malaysian Ringgits','sell_media')
+        'title' => __('Malaysian Ringgits','sell_media'),
+        'symbol' => "RM"
         ),
     "MXN" => array(
         'name' => 'MXN',
-        'title' => __('Mexican Peso (&#36;)','sell_media')
+        'title' => __('Mexican Peso (&#36;)','sell_media'),
+        'symbol' => "&#36;"
         ),
     "NZD" => array(
         'name' => 'NZD',
-        'title' => __('New Zealand Dollar (&#36;)','sell_media')
+        'title' => __('New Zealand Dollar (&#36;)','sell_media'),
+        'symbol' => "&#36;"
         ),
     "NOK" => array(
         'name' => 'NOK',
-        'title' => __('Norwegian Krone','sell_media')
+        'title' => __('Norwegian Krone','sell_media'),
+        'symbol' => "kr"
         ),
     "PHP" => array(
         'name' => 'PHP',
-        'title' => __('Philippine Pesos','sell_media')
+        'title' => __('Philippine Pesos','sell_media'),
+        'symbol' => "PHP"
         ),
     "PLN" => array(
         'name' => 'PLN',
-        'title' => __('Polish Zloty','sell_media')
+        'title' => __('Polish Zloty','sell_media'),
+        'symbol' => "PLN"
         ),
     "SGD" => array(
         'name' => 'SGD',
-        'title' => __('Singapore Dollar (&#36;)','sell_media')
+        'title' => __('Singapore Dollar (&#36;)','sell_media'),
+        'symbol' => "&#36;"
         ),
     "SEK" => array(
         'name' => 'SEK',
-        'title' => __('Swedish Krona','sell_media')
+        'title' => __('Swedish Krona','sell_media'),
+        'symbol' => "SEK"
         ),
     "CHF" => array(
         'name' => 'CHF',
-        'title' => __('Swiss Franc','sell_media')
+        'title' => __('Swiss Franc','sell_media'),
+        'symbol' => "CHF"
         ),
     "TWD" => array(
         'name' => 'TWD',
-        'title' => __('Taiwan New Dollars','sell_media')
+        'title' => __('Taiwan New Dollars','sell_media'),
+        'symbol' => "TWD"
         ),
     "THB" => array(
         'name' => 'THB',
-        'title' => __('Thai Baht','sell_media')
+        'title' => __('Thai Baht','sell_media'),
+        'symbol' => "THB"
         ),
     "TRY" => array(
         'name' => 'TRY',
-        'title' => __('Turkish Lira (TL)','sell_media')
+        'title' => __('Turkish Lira (TL)','sell_media'),
+        'symbol' => "TL"
         ),
     "ZAR" => array(
         'name' => 'ZAR',
-        'title' => __('South African rand (R)','sell_media')
+        'title' => __('South African rand (R)','sell_media'),
+        'symbol' => "R"
         )
     );
     return $currencies;

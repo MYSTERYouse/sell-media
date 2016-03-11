@@ -1,15 +1,15 @@
 === Sell Media ===
 
-Contributors: endortrails, ZaneMatthew
+Contributors: endortrails
 Donate link: http://graphpaperpress.com/plugins/sell-media/
-Tags: commerce, digital downloads, download, downloads, e-commerce, paypal, photography, sell digital, sell download, selling, sell photos, sell videos, sell media, stock photos
+Tags: photography, photos, sell media, sell photos, sell downloads, download, downloads, e-commerce, paypal, stock photos
 Requires at least: 3.4
-Tested up to: 3.9.1
-Stable tag: 1.9.6
+Tested up to: 4.4.2
+Stable tag: 2.1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Sell photos, prints, videos and pdf's online through WordPress in seconds. Built by creatives, for creatives.
+Sell photos, prints, videos and pdf's online through WordPress in seconds. Everything you need to sell your photography online.
 
 == Description ==
 
@@ -21,7 +21,7 @@ Sell photos, prints, videos and pdf's online through WordPress in seconds. Built
 
 Using Sell Media, you can:
 
-*   Sell photos, videos, pdf's and other digital files.
+*   Sell photos, galleries, videos, pdf's and other digital files.
 *   Create you own stock photo or video site.
 *   Charge licensing fees for commercial, editorial, or personal usages.
 *   Protect file uploads.
@@ -33,62 +33,51 @@ These [WordPress themes](http://graphpaperpress.com/wordpress-themes/sell-media/
 
 Take Sell Media to the next level with these powerful extensions:
 
-* [Sell photo prints](http://graphpaperpress.com/?download=reprints-self-fulfillment)
-* [Watermark your images](http://graphpaperpress.com/?download=watermark)
-* [Newsletter integration with Mailchimp](http://graphpaperpress.com/?download=mailchimp)
-* [Sales Commissions](http://graphpaperpress.com/?download=commissions)
-* [And many more](http://graphpaperpress.com/downloads/category/extensions/)
+* [Sell photo prints](http://graphpaperpress.com/plugins/sell-media-reprints)
+* [Cloud Backups](http://graphpaperpress.com/plugins/sell-media-s3)
+* [Watermark your images](http://graphpaperpress.com/plugins/sell-media-watermark)
+* [Newsletter integration with Mailchimp](http://graphpaperpress.com/plugins/sell-media-mailchimp)
+* [Sales Commissions](http://graphpaperpress.com/plugins/sell-media-commissions)
+* [And many more](https://graphpaperpress.com/extensions/sell-media/)
 
 == Installation ==
+
+= Server Requirements =
+
+1. PHP 5.4 or higher
+2. CURL PHP extension
+3. GD PHP extension
+4. Original file uploads are protected automatically on Apache servers using .htaccess. If you are using an NGINX server, you'll need to add this to your sites configuration file:
+`location ~ /wp-content/uploads/sell_media {
+    rewrite / permanent;
+}`
 
 1. Activate the plugin.
 2. Visit Sell Media -> Settings and configure the options.
 3. Insert the **required Sell Media shortcodes** onto your preferred Pages (see FAQ section).
-4. Visit Sell Media -> Licenses and add or configure your default licenses for new uploads.
-5. Visit Sell Media -> Add New and upload an image, video, audio file or pdf for sale.
+4. Visit Sell Media -> Add New and upload an image, video, audio file or pdf for sale.
 
 = Configuration =
 
 Visit the official plugin [Documentation](http://graphpaperpress.com/docs/sell-media/) to learn how to setup and customize Sell Media
 
-= IMPORTANT: PayPal Setup =
-
-In order for PayPal to communicate with your site, you must do three things:
-
-1. Set your IPN in PayPal
-2. Enable Auto Return in PayPal
-3. Enable Payment Data Transfer in PayPal
-
-Setting your IPN in PayPal
-
-1. Login to your PayPal account.
-2. Mouse over the Profile menu option and then click on the Selling Tools menu option.
-3. Scroll down to "Getting paid and managing my risk" and click the Update link beside "Instant payment notifications".
-4. Paste your PayPal IPN URL onto that page in PayPal. Your PayPal IPN URL is located on the Sell Media Settings page.
-
-Enabling Auto Return in PayPal
-
-1. Log in to your PayPal account at https://www.paypal.com. The My Account Overview page appears.
-2. Click the Profile subtab. The Profile Summary page appears.
-3. Click the My Selling Tools link in the left column.
-4. Under the Selling Online section, click the Update link in the row for Website Preferences.
-5. Under Auto Return for Website Payments, click the On radio button to enable Auto Return.
-6. In the Return URL field, enter the URL to your Thanks Page. NOTE: PayPal checks the Return URL that you enter. If the URL is not properly formatted or cannot be validated, PayPal will not activate Auto Return.
-
-Enabling Payment Data Transfer in PayPal
-
-7. On the same page as you set your Auto Return url, find the Payment Data Transfer section and click the On radio button to enable Payment Data Transfer.
-8. Scroll to the bottom of the page, and click the Save button.
-
-PayPal is now ready to communicate with your website.
-
 == Frequently Asked Questions ==
 
+= Payments aren't showing up in Sell Media. Why? =
+
+Please visit the Add Media -> Settings -> Payments page and double check all of your settings.
+
+If you're still having issues, [check these tips in the PayPal section](https://graphpaperpress.com/docs/sell-media/#paypal).
+
 = I have 5k+ photos I would like to sell, can Sell Media handle this? =
-* Sell Media is a plugin for WordPress and WordPress can easily handle hundreds or thousands of files. That said, the number of images that can be bulk uploaded at once is largely related to server performance. If you are using a cheap, shared web host, then you will need to contact them and ask them to change [PHP settings] (http://php.net/manual/en/function.set-time-limit.php).
+
+Sell Media is a plugin for WordPress and WordPress can easily handle hundreds or thousands of files. That said, the number of images that can be bulk uploaded at once is largely related to server performance. If you are using a cheap, shared web host, then you will need to contact them and ask them to change [PHP settings] (http://php.net/manual/en/function.set-time-limit.php).
 
 = My file is 500MB+ in size but users cannot download the file after purchasing? =
+
 Check with your hosting provide on your download limits. Sell Media does not provide any type of file splitting service.
+
+We do offer an Amazon S3 extension which offloads to storage of all uploads, which might be useful: [View the extensions](http://graphpaperpress.com/downloads/category/extensions/).
 
 = What are shortcodes and how do I use them? =
 
@@ -98,9 +87,11 @@ Shortcodes are small snippets of code that when added to a Post, Page or Widget 
 * **Thanks Shortcode** - (REQUIRED) Create a page called "Thanks" and add this shortcode to it: `[sell_media_thanks]`
 * **Buy Button Shortcode** - (OPTIONAL) Used for displaying specific items for sale: `[sell_media_item id="1893" text="Purchase" style="button" size="medium"]` Options include: text="purchase | buy" style="button | text" size="thumbnail | medium | large" align="left | center | right"
 * **Search Form Shortcode** - (OPTIONAL) Used to display a search form exclusively for searching items for sale within Sell Media: `[sell_media_searchform]`
-* **All items shortcode** - (OPTIONAL) Displays all (or a certain collection) items in a grid view: `[sell_media_all_items collection="type-your-collection-slug-here"]`
+* **All items shortcode** - (OPTIONAL) Displays all (or a certain collection) items in a grid view: `[sell_media_all_items collection="type-your-collection-slug-here" show="type-number-of-items-per-page"]`
 * **Download list shortcode** - (OPTIONAL) List logged in users downloads: `[sell_media_download_list]`
-
+* **Lightbox shortcode** - (OPTIONAL) Displays a page containing all items that visitors have added to their lightbox: `[sell_media_lightbox]`
+* **Login shortcode** – (OPTIONAL) Used to show a custom login form for your customers: `[sell_media_login_form]`
+* **Filters shortcode** – (OPTIONAL) Used to show a page with Latest, Most Popular, Collections, and Keywords as filters: `[sell_media_filters filters="all"]` You can also pass 1, 2, 3, 4 into the filters shortcode parameter to only show specific tabs Latest (1), Most Popular (2), Collections (3),  or Keywords (4). For example, if you only wanted to show the Latest and Keywords tabs, you would use this shortcode: `[sell_media_filters filters="1,4"]`
 
 = How do I show my checkout cart? =
 
@@ -113,21 +104,15 @@ Visit the Sell Media -> Add Product page and configure the page options. Click S
 
 = How do I show a search form for Sell Media items? =
 
-You have two options:
+Create a Page called "Search Media" and add this shortcode to it: `[sell_media_searchform]`. A search form also shows up above archive pages for products.
 
-1. Using Shortcode: Create a Page called "Search Media" and add this shortcode to it: `[sell_media_searchform]`
-2. Using a Template Tag: This function will call the custom Sell Media searchform: `<?php if ( class_exists( 'SellMediaSearch' ) ) echo Sell_Media()->search->form( $url ); ?>`. You must pass the URL to your Search Media page into the $url parameter, like this: `<?php if ( class_exists( 'SellMediaSearch' ) ) echo Sell_Media()->search->form( 'http://test.com/search-media' ); ?>`
+= Can I sell image galleries? =
 
-= How do I bulk upload images for sale? =
+Yes and you have two options:
 
-1. Click Sell Media -> Add New -> Add Bulk
-2. Click "Upload or Select Images"
-2. Simply drag and drop your files into the box that appears, or click Select Files to choose a file from your computer to upload. Please keep in mind that the drag and drop uploader only works in browsers with HTML5 upload support such as the latest versions of Chrome, Firefox, or Safari. Other browsers will still show the Select Files button or the basic browser uploader form.
-4. This item will be added as a new entry in Sell Media. By default, the newly created Sell Media item will inherit the sizes, prices and licenses that you chose on Sell Media -> Settings. You can modify the price and available licenses on the Sell Media tab by editing each individual item.
+1. Simply upload more than one image on the Sell Media -> Add New page. The price listed below is for each image in the gallery. In the near future, we will be releasing an extension for selling the entire gallery of images for one price.
+2. Assign each item to a specific Collection and the items will be displayed on that specific collection's archive page. You can then link to the collection like this: http://example.com/collection/my-collection-name/. A list of collecitons also shows up on the Appearance -> Menus page so you can add them to any menu.
 
-= How do I display a gallery of images for sale? =
-
-Sell Media includes a new "Collections" taxonomy, which you can see on the right side of the screen when adding a new item to Sell Media. Assign each item to a specific Collection and the items will be displayed on that specific collection's archive page. You can then link to the collection like this: http://example.com/collection/my-collection-name/. A list of collecitons also shows up on the Appearance -> Menus page so you can add them to any menu.
 
 = How do I password protect an item? =
 
@@ -166,12 +151,6 @@ Depending on the web hosting company you choose and the package you select, each
 
 Again, it is important that we emphasize that if you are on a shared hosting package, these techniques may not work. In that case, you would have to contact your web hosting provider to increase the limit for you.
 
-= Transactions are not posting. Why? =
-
-Please visit the Add Media -> Settings -> Payments page and double check all of your settings. Also, if you are using PayPal, you need to make sure you have [added your IPN Listener URL to PayPal](https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_admin_IPNSetup).
-
-Also, PayPal computers use IP ranges 66.211.*.* and 173.0.*.* and visit the IPN URL with NO User-Agent. Some web hosting companies have their servers set up to block incoming pings when the User-Agent is not explicitly set (as is the case with PayPal's IPN). In this case, you'll want to modify your .htaccess file to override user-agent blocking with these address ranges.
-
 = What are license types? =
 
 The Sell Media plugin helps you to create and assign different licenses and prices for each image, video or audio file based on the anticipated usage of the media. For example: If a large company wants to purchase one of your images for a billboard, you should charge one price for commercial usage, charge another for editorial, and so on.
@@ -186,11 +165,14 @@ Please disable your plugins and see if you still have the issue. Some plugins (o
 
 == Screenshots ==
 
-1. The Shopping Cart
+1. Quick View
 2. Single Item Template
-3. Add New Item
-4. Payments History
-5. Available Extensions (coming soon)
+3. Archive
+4. Collection Archive
+5. Checkout
+6. Add New Item
+7. [Optional Premium Extensions](http://graphpaperpress.com/downloads/category/extensions/)
+8. [Optional Premium Themes](https://graphpaperpress.com/wordpress-themes/sell-media/)
 
 == Developers ==
 
@@ -212,6 +194,12 @@ Example for adding a message below the cart:
 add_action( 'sell_media_below_cart', 'sell_media_below_cart_function' );`
 
 Action hooks available:
+
+* sell_media_above_archive_content - Above archive content
+* sell_media_below_archive_content - Below archive content
+* sell_media_above_archive_header_content - Above archive header content
+* sell_media_below_archive_header_content - Below archive header content
+* sell_media_above_archive_header_content
 * sell_media_above_cart - Above the cart
 * sell_media_below_cart - Below the cart
 * sell_media_cart_below_licenses - Between license and price on cart
@@ -222,9 +210,177 @@ Action hooks available:
 
 == Upgrade Notice ==
 
-* You must enable Auto Return Payment Data Transfer in PayPal for purchases to be recorded. See readme.txt for instructions.
 
 == Changelog ==
+
+= 2.1.5 =
+* New Feature: Filter Shortcode. Usage: `[sell_media_filters filters="all"]`. See instructions for additional parameters.
+* New Feature: Add "Search Everywhere" checkbox as optional search parameter.
+* Tweak: Default search to keywords only. This helps site owners optimize search results.
+* Tweak: Retain searched options on page load.
+* Tweak: Add archive page template override back into theme. Usage: Copy sell-media/themes/archive.php into your active theme folder and rename it to archive-sell-media.php
+* Tweak: Always use square images in widgets.
+* Tweak: Collection shortcode overlay design fix.
+* Tweak: Free download button text filter.
+* Tweak: Require WordPress 4.4 on activation.
+
+= 2.1.4 =
+* Tweak: Price group UI fix.
+* Fix: Prices over $1,000 on checkout.
+* Fix: If cart only contains downloadables, no shipping.
+* Tweak: Number input case statement.
+* Tweak: Only load css on sell_media_item admin pages.
+
+= 2.1.3 =
+* New Feature: Thumbnail Gallery Layouts
+* New Feature: Thumbnail Cropping
+* Tweak: Hover effects on images
+* Tweak: Next/Prev improvement on Quick View
+* Tweak: View Gallery text
+
+= 2.1.2 =
+* New Feature: Automatic updates for extensions.
+* Tweak: Multisite custom taxonomy support.
+* Tweak: Don't search term descriptions.
+* Tweak: Show "View Gallery" text.
+* Tweak: Use core WP term meta.
+* Tweak: Migrate custom taxonomy meta tables into core term meta tables.
+* Fix: Notices on thanks page, updater.
+
+= 2.1.1 =
+* Tweak: Multisite support
+* Tweak: Hook added for Free Downloads extension
+* Fix: Checkout blank if missing $attachment_id
+* Fix: Missing price options on dropdown
+
+= 2.1 =
+* New Feature: Quick View.
+* New Feature: $0 prices creates a free download.
+* New Feature: PHP Sessions saved to DB.
+* New Feature: Auto page creation w/ shortcodes during activation.
+* New Feature: Set default options during plugin activation.
+* New Feature: Delete options during plugin deactivation.
+* New Feature: Various hooks and filters added on archive.php and for text strings.
+* Tweak: Responsive improvements.
+* Tweak: Theme compatibility css.
+* Tweak: wp_title fix on single entries.
+* Tweak: Improved gallery navigation.
+* Tweak: CSS vendor prefixes.
+* Fix: Attachments now propertly searched. There is a known issue, however, with attachments previously uploaded to Posts or Pages. Users can change the post parent on the attachment page, should it be needed.
+* Fix: delete_transient for caching fix
+
+
+= 2.0.7 =
+* Hide attachments not not for sale from Sell Media Search page.
+* Change CPT priority
+
+= 2.0.6 =
+* Hotfix for users with PHP versions older than 5.3.
+
+= 2.0.5 =
+* New Feature: Search widget.
+* New Feature: Keywords saved with attachments, improves search results.
+* Tweak: Widget construct for 4.3 compatibility.
+* Tweak: Make settings page access filterable.
+* Tweak: Lower priority on widgets_init so it doesn't get priority over sidebar.
+* Tweak: Improve gallery caption display.
+* Tweak: Add missing strings for translation.
+* Bugfix: Add missing watermark class to galleries.
+* Bugfix: Missing thumbnails on checkout if not in a gallery or if item doesn't have featured image.
+
+
+= 2.0.4 =
+* Tweak: New filters for Access Control extension
+* Tweak: Minor UI changes in admin
+* Tweak: Show image caption and title on gallery images
+* Tweak: Added logout url to dashboard, with filter
+* Tweak: New translation files
+* Tweak: Grunt tasks for translations, coding standards
+* Bugfix: sell_media_item shortcode shouldn't show buy button for galleries
+* Bugfix: Deleting collection thumbnail fix
+
+= 2.0.3 =
+* New Feature: Check for newest version of Sell Media extensions.
+* Tweak: Add search by ID in admin.
+* Tweak: Don't send empty sizes and licenses to gateway.
+* Tweak: Improved html email receipts.
+* Bugfix: Missing sell_media_image class on gallery images.
+* Bugfix: Move non-image files to /uploads/sell_media/.
+* Bugfix: Filepath checks for non-image uploads (zips, etc).
+
+
+= 2.0.2 =
+* Tweak: Do not cache checkout, thanks and lightbox pages. Prevents PayPal IPN misses.
+* Tweak: Increase max_execution_time for bulk uploads
+* Tweak: Properly sanitize add_query_arg with esc_url
+* Tweak: Define select box width in dialog to prevent overflow on long titles
+* Tweak: Notice for is_gallery check on 404 and Search pages.
+* Tweak: Update PayPal IPN class and cert files.
+
+= 2.0.1 =
+* New Feature: Galleries. Upload multiple files.
+* New Feature: Gallery navigation.
+* New Feature: Importing options (Lightroom, etc)
+* New Feature: Sales stats for each product.
+* New Feature: View counts for each product.
+* New Feature: Lightbox notification text.
+* New Feature: Automatic classes for Checkout and Lightbox menu items.
+* New Feature: Upgrade notices for extensions.
+* New Feature: Dashicon integration.
+* Tweak: Updated download methods for accepting $attachment_id.
+* Tweak: Lightbox changes to accomodate $attachment_id.
+* Tweak: Lightbox now uses serialized multidimensional array.
+* Tweak: Flush permalinks if slug changed on settings.
+* Tweak
+* Bugfix: Missing sell_media_image class.
+* Bugix: Notice fix on system info and payments pages.
+
+= 2.0 =
+* New Feature: Breadcrumb navigation options.
+* New Feature: Layout options. Choose one or two column layouts on single entries.
+* New Feature: Search optimization. Now searches titles, content and keywords and includes exact phrase match for search ("New York", vs "New" and "York").
+* New Feature: Lots of new action hooks and filters.
+* Tweak: Theme compatibility fixes, no longer requires template files.
+* Tweak: Improved localization.
+* Tweak: Rewrite of the lightbox feature.
+* Tweak: Improve the logic of checkout button activation.
+* Bug: Adding multiple downloads by accidental multi-clicking fix.
+* Bug: Adding prints to cart without selecting price group fix.
+
+= 1.9.13 =
+* Collections count bug fix
+* Translation bug fix
+
+= 1.9.12 =
+* Removed default UI of price group from backend
+* Starting price for free download containing collection set to $0.00
+* iOS Chrome and Safari crash fix
+* Extensions menus not displaying bug fix
+
+= 1.9.11 =
+* Master language file added
+* List all collections shortcode layout bug fix
+* Extensions direct link & upgrades
+* PayPal POODLE SSL fix
+* Translation updates. See languages/readme.txt for details.
+
+= 1.9.10 =
+* Single license mark-up issue fix
+* BUY button in shortcode for free download fix
+* Search pagination fix
+
+= 1.9.9 =
+* Larger images sizes available for purchase bug fix
+* All items shortcode paging bug fix
+* Password protected collections visible in search issue fix
+* Downloads not working on some Apache servers. Replace wp_die() with exit()
+* Fixed "reprints-price-group" typo in Sell_Media->products->has_price_group. Corrects default price shown in cart.
+
+= 1.9.8 =
+* Bugfix on collection archive template
+
+= 1.9.7 =
+* Bugfix fix not ! check on sell media archive template
 
 = 1.9.6 =
 * Buy and Save buttons added back to archives

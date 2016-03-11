@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Product Images Class
+ *
+ * @package Sell Media
+ * @author Thad Allender <support@graphpaperpress.com>
+ */
+
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -14,7 +21,7 @@ class SellMediaImages extends SellMediaProducts {
      * Last, we copy (rename) our resized uploaded file to be the original
      * file.
      *
-     * @param $attached_file As WordPress sees it in *postmeta table
+     * @param $attachment_id As WordPress sees it in *postmeta table
      * "_wp_attached_file", i.e., YYYY/MM/file-name.ext
      * @since 1.0.1
      */
@@ -114,12 +121,10 @@ class SellMediaImages extends SellMediaProducts {
     *
     * @param (int)$post_id The post_id to the sell media item
     * @since 1.2.4
-    * @author Zane Matthew
     */
-    public function get_original_image_size( $post_id=null ){
+    public function get_original_image_size( $attachment_id=null ){
         // check if attachment is an image
-        $attachment_id = get_post_meta( $post_id, '_sell_media_attachment_id', true );
-        if ( $this->mimetype_is_image( $attachment_id ) ) {
+        if ( wp_attachment_is_image( $attachment_id ) ) {
             $original_size = wp_get_attachment_image_src( $attachment_id, 'full' );
             return array(
                 'original'=> array(
@@ -127,8 +132,6 @@ class SellMediaImages extends SellMediaProducts {
                     'width' => $original_size[1]
                 )
             );
-        } else {
-            return false;
         }
     }
 
@@ -140,7 +143,7 @@ class SellMediaImages extends SellMediaProducts {
      *
      * @return Array of downloadable sizes or single size if $term_id is present
      */
-    public function get_downloadable_size( $post_id=null, $term_id=null, $size_not_available=false ){
+    public function get_downloadable_size( $post_id=null, $attachment_id=null, $term_id=null, $size_not_available=false ){
 
         $null = null;
         $download_sizes = array();
@@ -154,7 +157,7 @@ class SellMediaImages extends SellMediaProducts {
         $size_groups = sell_media_get_price_groups( $post_id, 'price-group' );
         if ( ! empty( $size_groups ) ){
 
-            $image = $this->get_original_image_size( $post_id );
+            $image = $this->get_original_image_size( $attachment_id );
 
             foreach( $size_groups as $size ){
 
@@ -166,8 +169,8 @@ class SellMediaImages extends SellMediaProducts {
                     /**
                      * Retrieve the height and width for our price group
                      */
-                    $pg_width = sell_media_get_term_meta( $size->term_id, 'width', true );
-                    $pg_height = sell_media_get_term_meta( $size->term_id, 'height', true );
+                    $pg_width = get_term_meta( $size->term_id, 'width', true );
+                    $pg_height = get_term_meta( $size->term_id, 'height', true );
 
                     /**
                      * Build our array to be returned, the downloadable width and height
@@ -224,7 +227,7 @@ class SellMediaImages extends SellMediaProducts {
                     if ( ! empty( $terms ) ){
                         foreach( $terms as $term ){
                             if ( $term->parent != 0 ){
-                                $height = sell_media_get_term_meta( $term->term_id, 'height', true );
+                                $height = get_term_meta( $term->term_id, 'height', true );
                                 $heights[] = $height;
                             }
                         }
@@ -285,6 +288,7 @@ class SellMediaImages extends SellMediaProducts {
      * Save IPTC data as custom taxonomy terms
      */
     public function parse_iptc_info( $original_file=null, $attachment_id=null ){
+        global $post;
 
         // Extract IPTC meta info from the uploaded image.
         $city = sell_media_iptc_parser( 'city', $original_file );
@@ -292,22 +296,30 @@ class SellMediaImages extends SellMediaProducts {
         $creator = sell_media_iptc_parser( 'creator', $original_file );
         $keywords = sell_media_iptc_parser( 'keywords', $original_file );
 
-        global $post;
-        $product_id = empty( $post->ID ) ? get_post_meta( $attachment_id, '_sell_media_for_sale_product_id', true ) : $post->ID;
+        /**
+         * Assign terms to either the post or the attachment.
+         *
+         * In version 2.0, we added the product gallery capabilty.
+         * Since multiple images can be assigned, taxonomy terms (keywords)
+         * should be assigned to the attachments, not the post.
+         */
+        if ( isset( $post->ID ) && ! sell_media_has_multiple_attachments( $post->ID )  && ( defined( 'DOING_AJAX' ) && !DOING_AJAX ) ) {
+            $attachment_id = $post->ID;
+        }
 
         // Save IPTC info as taxonomies
-        if ( ! empty( $product_id ) ) {
+        if ( ! empty( $attachment_id ) ) {
             if ( $city )
-                sell_media_iptc_save( 'city', $city, $product_id );
+                sell_media_iptc_save( 'city', $city, $attachment_id );
 
             if ( $state )
-                sell_media_iptc_save( 'state', $state, $product_id );
+                sell_media_iptc_save( 'state', $state, $attachment_id );
 
             if ( $creator )
-                sell_media_iptc_save( 'creator', $creator, $product_id );
+                sell_media_iptc_save( 'creator', $creator, $attachment_id );
 
             if ( $keywords )
-                sell_media_iptc_save( 'keywords', $keywords, $product_id );
+                sell_media_iptc_save( 'keywords', $keywords, $attachment_id );
         }
     }
 
