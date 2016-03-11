@@ -1,43 +1,54 @@
-Sell Media
-==========
-
-Description
------------
+# Sell Media #
 
 [Sell Media](http://graphpaperpress.com/plugins/sell-media/) is a WordPress plugin that allows you to sell, license and protect images, videos, audio and pdf's on your self-hosted WordPress site.
 
+![The Shopping Cart](http://s.wordpress.org/extend/plugins/sell-media/screenshot-1.png)
+
 * [Documentation](http://graphpaperpress.com/docs/sell-media/)
+* [Roadmap](https://github.com/graphpaperpress/Sell-Media/blob/master/ROADMAP.md)
+* [Contributing](https://github.com/graphpaperpress/Sell-Media/blob/master/CONTRIBUTING.md)
 * [Official Plugin Page](http://graphpaperpress.com/plugins/sell-media/)
-* [Github Code Repository](https://github.com/graphpaperpress/sell-media)
 
-The Sell Media plugin allows you to:
+### Main Features ###
 
-*   Sell any kind of media file that you upload into WordPress, including images, videos, audio files and pdf's.
-*   License your media for specific usages, including commercial, editorial, or personal usages.
+*   Sell photos, galleries, videos, pdf's and other digital files.
 *   Create you own stock photo or video site.
+*   Charge licensing fees for commercial, editorial, or personal usages.
 *   Protect file uploads.
-*   Accept payments via Paypal.
-*   Earn passive income by selling and licensing your media.
+*   Accept payments via PayPal. Additional payment gateways are also available.
 
-Take Sell Media to the next level with these powerful extensions:
+### Themes ###
 
-* [Sell photo reprints](http://graphpaperpress.com/?download=reprints-self-fulfillment)
-* [Watermark your images](http://graphpaperpress.com/?download=watermark)
-* [Newsletter integration with Mailchimp](http://graphpaperpress.com/?download=mailchimp)
-* [Advanced Search](http://graphpaperpress.com/?download=advanced-search)
-* [Sales Commissions](http://graphpaperpress.com/?download=commissions)
-* [And many more](http://graphpaperpress.com/downloads/category/extensions/)
+These [WordPress themes](http://graphpaperpress.com/wordpress-themes/sell-media/) were designed to enhance the functionality of Sell Media. Sell Media also works with any properly coded WordPress theme, however, some tweaks might be required.
 
-Installation
-------------
+### Extensions ###
+
+* [Sell photo prints](http://graphpaperpress.com/plugins/sell-media-reprints)
+* [Cloud Backups](http://graphpaperpress.com/plugins/sell-media-s3)
+* [Watermark your images](http://graphpaperpress.com/plugins/sell-media-watermark)
+* [Newsletter integration with Mailchimp](http://graphpaperpress.com/plugins/sell-media-mailchimp)
+* [Sales Commissions](http://graphpaperpress.com/plugins/sell-media-commissions)
+* [And many more](https://graphpaperpress.com/extensions/sell-media/)
+
+## Installation ##
+
+### Server Requirements ###
+
+1. PHP 5.4 or higher
+2. CURL PHP extension
+3. GD PHP extension
+4. Original file uploads are protected automatically on Apache servers using .htaccess. If you are using an NGINX server, you'll need to add this to your sites configuration file:
+`location ~ /wp-content/uploads/sell_media {
+    rewrite / permanent;
+}`
 
 1. Activate the plugin.
 2. Visit Sell Media -> Settings and configure the options.
-3. Insert the **required Sell Media shortcodes** onto your preferred Pages (see FAQ section).
-4. Visit Sell Media -> Licenses and add or configure your default licenses for new uploads.
-5. Visit Sell Media -> Add New and upload an image, video, audio file or pdf for sale.
+3. Visit Sell Media -> Add New and upload an image, video, audio file or pdf for sale.
 
-Documentation
--------------
+## Community ##
 
-[Read Official Documentation](http://graphpaperpress.com/docs/sell-media/)
+1. Get help from the creators of Sell Media by joining [Graph Paper Press](https://graphpaperpress.com).
+2. There is an [unmonitored forum at WordPress.org](https://wordpress.org/support/plugin/sell-media) for Sell Media.
+3. Fix issues reported on the [issue tracker](https://github.com/graphpaperpress/Sell-Media/issues).
+4. Contribute ideas to the [roadmap](https://github.com/graphpaperpress/Sell-Media/blob/master/ROADMAP.md).

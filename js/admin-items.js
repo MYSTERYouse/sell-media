@@ -1,17 +1,21 @@
 jQuery( document ).ready(function( $ ){
 
-    $(function() {
-        // Move bulk upload tabs above post title, no hook exists there in WP
-        $('#sell-media-tabs').insertBefore($('#post-body-content'));
-
-    });
-
-    // Uploading files
+    /**
+     * Uploading files
+     */
     var file_frame;
 
-    $(document).on('click', '.sell-media-upload-trigger', function( event ){
+    /**
+     * Upload button clicked
+     * Used on add/edit item page
+     * Ajax callback to show uploaded/selected items in meta box
+     * Updates hidden input field with new attachment ids
+     */
+    $(document).on('click', '.sell-media-upload-button', function( event ){
 
         event.preventDefault();
+
+        var post_id = $(this).data('id');
 
         if ( file_frame ) {
             file_frame.open();
@@ -20,59 +24,10 @@ jQuery( document ).ready(function( $ ){
 
         // Create the media frame.
         file_frame = wp.media.frames.file_frame = wp.media({
-            title: 'Select Image',
-            button: {
-              text: 'Use Selected Image',
-            },
-            multiple: false  // Set to true to allow multiple files to be selected
-        });
-
-        // When an image is selected, run a callback.
-        file_frame.on( 'select', function() {
-            // We set multiple to false so only get one image from the uploader
-            var attachment = file_frame.state().get('selection').first().toJSON();
-
-            // Do something with attachment.id and/or attachment.url here
-            $('.sell_media_selected_file_id').attr( 'value', attachment.id );
-            $('.sell_media_attached_file').attr( 'value', attachment.url );
-
-            var data = {
-                action: 'sell_media_item_get_thumbnail',
-                attachment_id: attachment.id
-            };
-
-            // Show our loader
-            $('.sell-media-item-thumbnail').show();
-
-            $.ajax({
-                type: "POST",
-                url: ajaxurl,
-                data: data,
-                success: function( msg ){
-                    $('.sell-media-item-thumbnail').html( msg );
-                }
-            });
-        });
-
-        // Finally, open the modal
-        file_frame.open();
-    });
-
-    $(document).on('click', '.sell-media-upload-trigger-multiple', function( event ){
-
-        event.preventDefault();
-
-        if ( file_frame ) {
-            file_frame.open();
-            return;
-        }
-
-        // Create the media frame.
-        file_frame = wp.media.frames.file_frame = wp.media({
-            title: 'Select Images To Sell',
+            title: 'Select Files To Sell',
             description: 'This is the description',
             button: {
-              text: 'Sell All Selected Images',
+              text: 'Sell All Selected Files',
             },
             multiple: 'add'  // Set to true to allow multiple files to be selected
         });
@@ -87,9 +42,10 @@ jQuery( document ).ready(function( $ ){
              * the current one (attachments) is bloated and causing the bulk updater to fail
              * after ~23 items
              */
-            var slim = [];
+            var attachments_array = [];
+
             $.each( attachments, function( i, item ){
-                slim.push({
+                attachments_array.push({
                     id: item.id,
                     title: item.title,
                     description: item.description,
@@ -98,11 +54,13 @@ jQuery( document ).ready(function( $ ){
             });
 
             var data = {
-                action: "sell_media_uploader_multiple",
-                attachments: slim
+                action: "sell_media_upload_callback",
+                attachments: attachments_array,
+                id: post_id,
+                security: $('#sell_media_meta_box_nonce').val()
             };
 
-            $('.sell-media-bulk-list').empty();
+            //$('.sell-media-upload-list').empty();
             $('.sell-media-ajax-loader').show();
 
             $.ajax({
@@ -111,7 +69,8 @@ jQuery( document ).ready(function( $ ){
                 data: data,
                 success: function( msg ){
                     $('.sell-media-ajax-loader').hide();
-                    $('.sell-media-bulk-list').html( msg );
+                    $('.sell-media-upload-list').append( msg );
+                    update_files();
                 }
             });
         });
@@ -120,44 +79,94 @@ jQuery( document ).ready(function( $ ){
         file_frame.open();
     });
 
-    $(document).on('mouseenter', '.sell-media-bulk-list-item', function(){
-        $this = $(this);
+    /**
+     * Remove from file list
+     */
+    $(document).on('click', '.sell-media-delete', function( event ){
+        // Remove the file
+        var id = $(this).data('id');
+        $('.sell-media-attachment[data-post_id="' + id +'"]').remove();
 
-        $this.find('img').css('opacity', '0.4');
-        $this.find('.sell-media-bulk-list-item-edit').show();
-
-    }).on( 'mouseleave', '.sell-media-bulk-list-item', function(){
-        $this = $(this);
-
-        $this.find('img').css('opacity','1');
-        $this.find('.sell-media-bulk-list-item-edit').hide();
+        // Update the file list hidden field
+        update_files();
+        return false;
     });
 
+    /**
+     * Update the file list hidden field
+     */
+    function update_files(){
+        var array = [];
+        $('.sell-media-upload-list li').each(function(){
+            array.push($(this).data('post_id'));
+        });
+        var new_array = array.join(',');
 
-    $('#sell_media_bulk_upload_form').on('submit', function( event ){
+        // Set the new value
+        $('#sell-media-attachment-id').val(new_array);
+    }
+
+    /**
+     * Toggle the upload options
+     * Used on add/edit item page
+     */
+    $('.sell-media-upload-options').on('click', function( event ){
+        event.preventDefault();
+        $(this).find('span').toggleClass('dashicons-arrow-up dashicons-arrow-down');
+        $('#sell-media-upload-show-options').toggle();
+    });
+
+    /**
+     * Remove disabled property when bulk selector changes
+     * Used on add/edit item page
+     */
+    $('#sell-media-upload-bulk-selector').change(function() {
+        var button = $('#sell-media-upload-bulk-processor');
+        if ($(this).val()) {
+            $(button).prop('disabled', false);
+        } else {
+            $(button).prop('disabled', true);
+        }
+    });
+
+    /**
+     * Ajax callback to insert attachments in bulk upload directory into WP
+     * Used on add/edit item page
+     */
+    $('#sell-media-upload-bulk-processor').on('click', function( event ){
         event.preventDefault();
 
-        var _post_ids = [];
+        var selector = $(this);
 
-        $('.sell-media-bulk-list li').each(function(){
-            _post_ids.push( $(this).attr('data-post_id') );
-        });
+        $(selector).text($(selector).data('uploading-text'));
 
-        if ( _post_ids.length == 0 ) return;
+        var directory = $('#sell-media-upload-bulk-selector').val(),
+            post_id = $('.sell-media-upload-button').data('id');
 
-        $('#sell_media_bulk_upload_save_button').attr('disabled', true).val('Saving...');
+        var data = {
+                action: "sell_media_upload_bulk_callback",
+                dir: directory,
+                id: post_id,
+                security: $('#sell_media_meta_box_nonce').val()
+            };
 
-        $.ajax({
-            data: 'action=sell_media_bulk_update_collection&post_ids=' + _post_ids + '&' + $('#sell_media_bulk_upload_form').serialize(),
-            type: "POST",
-            url: ajaxurl,
-            success: function( msg ){
-                $('#sell_media_bulk_upload_save_button').removeAttr('disabled').val('Saved!');
-            }
-        });
+            $.ajax({
+                type: "POST",
+                url: ajaxurl,
+                data: data,
+                success: function( msg ){
+                    $('.sell-media-upload-list').append( msg );
+                    update_files();
+                    $(selector).text($(selector).data('default-text'));
+                    //console.log(msg);
+                }
+            });
+
     });
 
-
+    /**
+     * Upload thumbnail icon for collections
+     */
     $(document).on('click', '.sell-media-upload-trigger-collection-icon', function( event ){
 
         event.preventDefault();
@@ -192,29 +201,25 @@ jQuery( document ).ready(function( $ ){
         file_frame.open();
     });
 
+    /**
+     * Remove thumbnail icon for collections
+     */
     $(document).on('click', '.upload_image_remove', function(){
-        $('#collection_icon_target').html('');
-        $('#collection_icon_url').val('');
         $('#collection_icon_input_field').val('');
+        $('#collection_icon_url').val('');
+        $('#collection_icon_target img').remove();
     });
 
+    /**
+     * Remove thumbnail icon for collections
+     */
+    $(document).ajaxComplete(function( event, xhr, settings ){
+        /**
+         * We should somehow intercept the correct event among lots of them fired by WordPress
+         */
+        $('#collection_icon_target img').remove();
 
-    // Save Package
-    $('#sell_media_package_upload_form').on('submit', function( event ){
-        event.preventDefault();
-
-        $('#sell_media_package_upload_save_button').attr('disabled', true).val('Saving...');
-
-        $.ajax({
-            data: 'action=sell_media_package_update&' + $('#sell_media_package_upload_form').serialize(),
-            type: "POST",
-            url: ajaxurl,
-            success: function(msg){
-                $('#sell_media_package_upload_save_button').removeAttr('disabled').val('Saved');
-                $('#sell_media_package_edit_link a').attr('href', "post.php?post=" + msg + "&action=edit" );
-                $('#sell_media_package_edit_link').show();
-                
-            }
-        });
     });
+
 });
+

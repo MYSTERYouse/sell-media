@@ -1,13 +1,11 @@
 <?php
 
 /**
- * Admin scripts
+ * Admin Scripts
  *
- * @package     Sell Media
- * @subpackage  Functions/Install
- * @license     http://opensource.org/licenses/gpl-2.0.php GNU Public License
- * @since       1.8.5
-*/
+ * @package Sell Media
+ * @author Thad Allender <support@graphpaperpress.com>
+ */
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -30,7 +28,6 @@ function sell_media_admin_scripts( $hook ) {
         wp_enqueue_script( 'sell_media-admin-items', SELL_MEDIA_PLUGIN_URL . 'js/admin-items.js', array( 'jquery' ), SELL_MEDIA_VERSION );
 
         if ( sell_media_is_license_page() || sell_media_is_license_term_page() ) {
-            wp_enqueue_script( 'sell_media-admin', SELL_MEDIA_PLUGIN_URL . 'js/sell_media-admin.js', array( 'jquery', 'jquery-ui-sortable' ), SELL_MEDIA_VERSION );
             wp_enqueue_script( 'jquery-ui-slider' );
         }
     }
@@ -38,7 +35,7 @@ function sell_media_admin_scripts( $hook ) {
     if ( sell_media_is_reports_page() ) {
         wp_enqueue_script( 'google_charts', 'https://www.google.com/jsapi', array( 'jquery' ), SELL_MEDIA_VERSION );
     }
-    
+
     do_action( 'sell_media_admin_scripts_hook' );
 }
 add_action( 'admin_enqueue_scripts', 'sell_media_admin_scripts' );
